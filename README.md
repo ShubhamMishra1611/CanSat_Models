@@ -1,3 +1,3 @@
 # CanSat_Models
 
-This is just to maintain all the models.
+All components/parts of CanSat are put here.Including the PDR report.
