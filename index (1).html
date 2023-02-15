@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CanSat Map</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+    <!-- include Leaflet CSS and JavaScript -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/leaflet/1.3.1/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/leaflet/1.3.1/leaflet.js"></script>
+
+    <style>
+        .chart-container {
+            width: 50%;
+            height: auto;
+        }
+
+        /* .main-content {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            min-height: 400px;
+            height: 10%;
+            width: 100%;
+
+            background-color: rgb(68, 68, 68);
+        } */
+
+        /* here I changed */
+        .main-content{
+            display: grid;
+            grid-template-areas: 
+            'a b'
+            'c d';
+            height: 800px;
+            width: 100%;
+            gap: 10px;
+            grid-template-columns: 4fr 4fr;
+            grid-template-rows: 1fr 1fr;
+            background-color: rgb(68, 68, 68);
+        }
+        #chart1{
+            min-height: 400px;
+            min-width: 600px;
+        }
+        #chart2{
+            min-height: 400px;
+            min-width: 600px;
+        }
+        #chart3{
+            min-height: 400px;
+            min-width: 600px;
+        }
+        #chart4{
+            min-height: 400px;
+            min-width: 600px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Cansat</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Sensor Details</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+
+    <div id="map" style="height: 500px;"><iframe width="100%" height="400px" frameborder="0" scrolling="no"
+            marginheight="0" marginwidth="0"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=72.99316406250001%2C26.437376600127735%2C73.15383911132814%2C26.54354072412885&amp;layer=mapnik"
+            style="border: 1px solid black"></iframe><br /><small><a
+                href="https://www.openstreetmap.org/#map=13/26.4905/73.0735">View Larger Map</a></small>
+    </div>
+    <div class="main-content">
+        <div class="chart-container">
+            <canvas id="chart1" ></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="chart2"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="chart3"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="chart4"></canvas>
+        </div>
+    </div>
+
+    <script>
+        var charts = []; // Array to store the chart objects
+
+        // Initialize the charts with the initial data
+        for (var i = 1; i <= 4; i++) {
+            var ctx = document.getElementById('chart' + i).getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Sensor ' + i,
+                        data: [],
+                        borderColor: 'rgba(255,255 , 255, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 1)',
+                        fill: 'start',
+                    }],
+
+                },
+                options: {
+                    legend: {
+                        labels: {
+                            fontColor: 'white' // set the color of the dataset label here
+                        }
+                    },
+
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                displayFormats: {
+                                    second: 'h:mm:ss a',
+
+                                },
+
+
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Time',
+                                fontColor: 'white',
+                            },
+                            ticks: {
+                                fontColor: 'white' // set the font color for the y-axis labels here
+                            }
+                        }],
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Value',
+                                fontColor: 'white',
+                            },
+                            ticks: {
+                                fontColor: 'white' // set the font color for the y-axis labels here
+                            }
+                        }]
+                    }
+                }
+            });
+
+            charts.push(chart);
+        }
+
+        // Update the charts with real-time data every second
+        setInterval(function () {
+            // Simulate fetching sensor data from server
+            var data1 = {
+                value: Math.random() * 100,
+                timestamp: new Date()
+            };
+            var data2 = {
+                value: Math.random() * 100,
+                timestamp: new Date()
+            };
+            var data3 = {
+                value: Math.random() * 100,
+                timestamp: new Date()
+            };
+            var data4 = {
+                value: Math.random() * 100,
+                timestamp: new Date()
+            };
+
+            // Add data to the charts
+            charts[0].data.labels.push(data1.timestamp);
+            charts[0].data.datasets[0].data.push(data1.value);
+            charts[0].update();
+
+            charts[1].data.labels.push(data2.timestamp);
+            charts[1].data.datasets[0].data.push(data2.value);
+            charts[1].update();
+
+            charts[2].data.labels.push(data3.timestamp);
+            charts[2].data.datasets[0].data.push(data3.value);
+            charts[2].update();
+
+            charts[3].data.labels.push(data4.timestamp);
+            charts[3].data.datasets[0].data.push(data4.value);
+            charts[3].update();
+        }, 1000); // Update every second
+    </script>
+    <script>
+        // initialize the map
+        var map = L.map('map').setView([51.505, -0.09], 13);
+
+        // add the OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        // add a marker to the map
+        var marker = L.marker([51.5, -0.09]).addTo(map);
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
